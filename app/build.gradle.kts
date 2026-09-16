@@ -19,16 +19,11 @@ android {
     }
 
     signingConfigs {
-        getByName("debug") {
-            // Prefer the stable debug key kept in the gitignored signing-keys/
-            // folder. AGP's default path is machine-dependent (it resolved to
-            // ~/.config/.android on this box and silently generated a fresh
-            // key there), and a stray debug keystore makes every install on a
-            // device that already has the app fail with a signature mismatch.
-            val stableDebugKey = rootProject.file("signing-keys/debug.keystore")
-            if (stableDebugKey.exists()) {
-                storeFile = stableDebugKey
-            }
+        create("debugConfig") {
+            storeFile = file("${rootDir}/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
         }
     }
 
@@ -37,12 +32,13 @@ android {
             // Local alpha distribution: signed with the debug keystore so the
             // APK installs without a release keystore. Swap to a dedicated
             // signing config before any public/Play distribution.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("debugConfig")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         debug {
             applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs.getByName("debugConfig")
         }
     }
 
